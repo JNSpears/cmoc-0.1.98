@@ -1,0 +1,7 @@
+misc.o: misc.cc /usr/include/stdc-predef.h usim.h machdep.h typedefs.h \
+ misc.h
+/usr/include/stdc-predef.h:
+usim.h:
+machdep.h:
+typedefs.h:
+misc.h:
