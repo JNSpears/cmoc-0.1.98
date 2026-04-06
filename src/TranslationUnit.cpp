@@ -224,7 +224,7 @@ TranslationUnit::registerFunction(FunctionDef *fd)
             fd->warnmsg("return type of main() must be int");
         if (fd->getNumFormalParams() != 0)
         {
-            if (params.targetPlatform == OS9 || params.targetPlatform == FLEX)
+            if (params.targetPlatform == OS9 || params.targetPlatform == FLEX || params.targetPlatform == MPX9)
             {
                 // Check that main() receives the expected parameters.
                 bool ok = true;

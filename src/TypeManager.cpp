@@ -786,6 +786,7 @@ TypeManager::getFloatingPointFormat(TargetPlatform platform, FloatingPointLibrar
             fmt.sizeInBytes = isDoublePrecision ? 8 : 4;
             break;
         case USIM:
+        case MPX9:
         case VOID_TARGET:
         default:
             fmt.sizeInBytes = 4;  // avoid zero-length array in struct _Float

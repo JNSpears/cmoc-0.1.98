@@ -76,6 +76,41 @@ byte dskcon(byte operation, byte *buffer, byte drive, byte track, byte sector)
 }
 
 
+#elif MPX9  /* Simulator used for MPX9 self-testing. */
+
+
+byte dskcon(byte operation, byte *buffer, byte drive, byte track, byte sector)
+{
+    //printf("- dskcon(%u, 0x%04x, %u, %u, %u)\n", operation, buffer, drive, track, sector);
+    if (operation != DSKCON_READ && operation != DSKCON_WRITE)
+        return FALSE;
+    if (buffer == 0)
+        return FALSE;
+    if (drive >= 4)
+        return FALSE;
+    if (track >= 35)
+        return FALSE;
+    if (sector == 0)
+        return FALSE;
+    if (sector > 18)
+        return FALSE;
+
+    // Fill input variables of simulated DSKCON routine.
+    byte *dskConUSimVars = (byte *) 0xFF04;
+    dskConUSimVars[1] = drive;   // DCDRV
+    dskConUSimVars[2] = track;   // DCTRK
+    dskConUSimVars[3] = sector;  // DCSEC
+    * (byte **) (dskConUSimVars + 4) = buffer;  // DCBPT
+
+    // Specifying the operation code causes the simulated DSKCON routine to run
+    // (and block the execution).
+    //
+    dskConUSimVars[0] = operation;  // DCOPC: DSKCON operation code
+
+    return !dskConUSimVars[6];  // zero in DCSTA means success
+}
+
+
 #endif  /* ndef _COCO_BASIC_ */
 
 

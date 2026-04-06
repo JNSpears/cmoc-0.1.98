@@ -59,6 +59,7 @@ enum TargetPlatform
     COCO_BASIC,     // Extended Color Basic on the Color Computer
     OS9,            // OS-9 or NitrOS-9
     USIM,           // USim 6809 simulator
+    MPX9,           // MPX9 (6809 OS from Percom)
     VECTREX,        // Vectrex video game console
     DRAGON,         // Dragon 32/64
     VOID_TARGET,    // target with no I/O system known to this compiler

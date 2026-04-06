@@ -11,7 +11,7 @@
 #ifndef _H_disk
 #define _H_disk
 
-#if !defined(_COCO_BASIC_) && !defined(USIM)
+#if !defined(_COCO_BASIC_) && !defined(USIM) && !defined(MPX9)
 #error This header file defines functions that only work on the CoCo.
 #endif
 

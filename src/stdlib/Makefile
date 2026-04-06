@@ -320,6 +320,7 @@ cmoclibdir = $(pkgdatadir)/lib
 cmoclib_DATA = \
 	libcmoc-crt-ecb.a \
 	libcmoc-crt-usim.a \
+	libcmoc-crt-mpx9.a \
 	libcmoc-crt-os9.a \
 	libcmoc-crt-flex.a \
 	libcmoc-crt-vec.a \
@@ -329,6 +330,7 @@ cmoclib_DATA = \
 	libcmoc-crt-tht.a \
 	libcmoc-std-ecb.a \
 	libcmoc-std-usim.a \
+	libcmoc-std-mpx9.a \
 	libcmoc-std-os9.a \
 	libcmoc-std-flex.a \
 	libcmoc-std-vec.a \
@@ -593,6 +595,7 @@ H_OS9 =
 C_VECTREX = vectrex_bios.c
 CRT_ECB_OBJ = $(CRT_ASM:.asm=.ecb_o)
 CRT_USIM_OBJ = $(CRT_ASM:.asm=.usim_o)
+CRT_MPX9_OBJ = $(CRT_ASM:.asm=.mpx9_o)
 CRT_OS9_OBJ = $(CRT_ASM:.asm=.os9_o)
 CRT_FLEX_OBJ = $(CRT_ASM:.asm=.flex_o)
 CRT_VECTREX_OBJ = $(CRT_ASM:.asm=.vec_o)
@@ -602,6 +605,7 @@ CRT_THM_OBJ = $(CRT_ASM:.asm=.thm_o)
 CRT_THT_OBJ = $(CRT_ASM:.asm=.tht_o)
 STD_ECB_OBJ = $(STD_ASM:.asm=.ecb_o)  $(C_COMMON:.c=.ecb_o) $(C_COCO_OR_DRAGON_BASIC:.c=.ecb_o) $(C_COCO_BASIC:.c=.ecb_o)
 STD_USIM_OBJ = $(STD_ASM:.asm=.usim_o) $(C_COMMON:.c=.usim_o) disk.usim_o
+STD_MPX9_OBJ = $(STD_ASM:.asm=.mpx9_o) $(C_COMMON:.c=.mpx9_o) disk.mpx9_o
 STD_OS9_OBJ = $(STD_ASM:.asm=.os9_o)  $(C_COMMON:.c=.os9_o) $(C_OS9:.c=.os9_o)
 STD_FLEX_OBJ = $(STD_ASM:.asm=.flex_o)  $(C_COMMON:.c=.flex_o)
 STD_VECTREX_OBJ = $(STD_ASM:.asm=.vec_o) $(C_COMMON:.c=.vec_o) $(C_VECTREX:.c=.vec_o)
@@ -614,9 +618,9 @@ INTERMEDIATE = #--intermediate
 CMOC_LIB_FLAGS = -O2 -DNDEBUG -nostdinc -I $(srcdir) $(INTERMEDIATE) -Werror -Wno-inline-asm-array-indexes
 CLEANFILES = $(cmoclib_DATA) \
         $(CRT_ECB_OBJ) $(CRT_USIM_OBJ) $(CRT_OS9_OBJ) $(CRT_FLEX_OBJ) $(CRT_VECTREX_OBJ) $(CRT_DRAGON_OBJ) $(CRT_VOID_OBJ) \
-        $(CRT_THM_OBJ) $(CRT_THT_OBJ) \
+        $(CRT_THM_OBJ) $(CRT_THT_OBJ) $(CRT_MPX9_OBJ) \
         $(STD_ECB_OBJ) $(STD_USIM_OBJ) $(STD_OS9_OBJ) $(STD_FLEX_OBJ) $(STD_VECTREX_OBJ) $(STD_DRAGON_OBJ) $(STD_VOID_OBJ) \
-        $(STD_THM_OBJ) $(STD_THT_OBJ)
+        $(STD_THM_OBJ) $(STD_THT_OBJ) $(STD_MPX9_OBJ) 
 
 EXTRA_DIST = std.inc os9fixup.pl $(CRT_ASM) $(STD_ASM) \
 		$(C_COMMON) $(C_COCO_OR_DRAGON_BASIC) $(C_COCO_BASIC) $(H_OS9) $(C_OS9) $(C_VECTREX)
@@ -931,6 +935,8 @@ libcmoc-crt-ecb.a: $(CRT_ECB_OBJ)
 	$(LWAR) -c $@ $(CRT_ECB_OBJ)
 libcmoc-crt-usim.a: $(CRT_USIM_OBJ)
 	$(LWAR) -c $@ $(CRT_USIM_OBJ)
+libcmoc-crt-mpx9.a: $(CRT_MPX9_OBJ)
+	$(LWAR) -c $@ $(CRT_MPX9_OBJ)
 libcmoc-crt-os9.a: $(CRT_OS9_OBJ)
 	$(LWAR) -c $@ $(CRT_OS9_OBJ)
 libcmoc-crt-flex.a: $(CRT_FLEX_OBJ)
@@ -950,6 +956,8 @@ libcmoc-std-ecb.a: $(STD_ECB_OBJ)
 	$(LWAR) -c $@ $(STD_ECB_OBJ)
 libcmoc-std-usim.a: $(STD_USIM_OBJ)
 	$(LWAR) -c $@ $(STD_USIM_OBJ)
+libcmoc-std-mpx9.a: $(STD_MPX9_OBJ)
+	$(LWAR) -c $@ $(STD_MPX9_OBJ)
 libcmoc-std-os9.a: $(STD_OS9_OBJ)
 	$(LWAR) -c $@ $(STD_OS9_OBJ)
 libcmoc-std-flex.a: $(STD_FLEX_OBJ)
@@ -969,6 +977,8 @@ libcmoc-std-tht.a: $(STD_THT_OBJ)
 	$(LWASM) $(LWASMFLAGS) -fobj -D_COCO_BASIC_ -D_COCO_OR_DRAGON_BASIC_ --output=$@ $<
 %.usim_o: %.asm std.inc ../float/float.inc
 	$(LWASM) $(LWASMFLAGS) -fobj -DUSIM --output=$@ $<
+%.mpx9_o: %.asm std.inc ../float/float.inc
+	$(LWASM) $(LWASMFLAGS) -fobj -DMPX9 --output=$@ $<
 %.os9_o: %.asm std.inc ../float/float.inc
 	$(PERL) $(srcdir)/os9fixup.pl < $< > $(OS9TEMP)
 	$(LWASM) $(LWASMFLAGS) -fobj -DOS9 -I$(srcdir) --pragma=dollarnotlocal --output=$@ $(OS9TEMP)
@@ -991,6 +1001,8 @@ libcmoc-std-tht.a: $(STD_THT_OBJ)
 	../cmoc -c $(CMOC_LIB_FLAGS) -o $@ $<
 %.usim_o: %.c std.inc ../float/float.inc
 	../cmoc -c $(CMOC_LIB_FLAGS) --usim -o $@ $<
+%.mpx9_o: %.c std.inc ../float/float.inc
+	../cmoc -c $(CMOC_LIB_FLAGS) --mpx9 -o $@ $<
 %.os9_o: %.c std.inc ../float/float.inc
 	../cmoc -c $(CMOC_LIB_FLAGS) --os9 -o $@ $<
 %.flex_o: %.c std.inc ../float/float.inc

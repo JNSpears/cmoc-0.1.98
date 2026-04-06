@@ -422,6 +422,7 @@ getTargetPlatformName(TargetPlatform targetPlatform)
         case COCO_BASIC:  return "CoCo Disk Basic";
         case OS9:         return "OS-9";
         case USIM:        return "USim";
+        case MPX9:        return "MPX9";
         case VECTREX:     return "Vectrex";
         case DRAGON:      return "Dragon";
         case VOID_TARGET: return "Void Target";
@@ -442,6 +443,7 @@ getTargetPlatformPreprocId(TargetPlatform targetPlatform)
         case COCO_BASIC:  return "_COCO_BASIC_";
         case OS9:         return "OS9";
         case USIM:        return "USIM";
+        case MPX9:        return "MPX9";
         case VECTREX:     return "VECTREX";
         case DRAGON:      return "DRAGON";
         case VOID_TARGET: return "_CMOC_VOID_TARGET_";

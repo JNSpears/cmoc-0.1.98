@@ -1,0 +1,11 @@
+# Specify filepatterns you want git to ignore.
+src/cmoc
+*.cc
+*.hh
+*.o
+*_o
+*.a
+a.out
+**/usim
+src/writecocofile
+src/float/float-os9.inc

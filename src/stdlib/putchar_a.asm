@@ -34,6 +34,12 @@ putchar_a
         jsr     [CHROUT,pcr]    FLEX sequence is {10, 13}
         lda     #13
     ENDC
+    IFDEF MPX9
+        cmpa    #10             C linefeed?
+        bne     @done
+        jsr     [CHROUT,pcr]    MPX9 sequence is {10, 13}
+        lda     #13
+    ENDC
 @done
         jmp     [CHROUT,pcr]
 

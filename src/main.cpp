@@ -89,6 +89,7 @@ getDefaultOutputExtension(TargetPlatform p, const string &forcedLWLinkFormat)
     {
     case COCO_BASIC:  return ".bin";
     case USIM:        return ".srec";
+    case MPX9:        return ".srec";
     case VECTREX:     return ".bin";
     case OS9:         return "";
     case DRAGON:      return ".bin";
@@ -410,6 +411,7 @@ invokeLinker(const Parameters &params,
     case COCO_BASIC:  targetKW = "ecb";  lwlinkFormat = "decb"; break;
     case OS9:         targetKW = "os9";  lwlinkFormat = "os9";  break;
     case USIM:        targetKW = "usim"; lwlinkFormat = "srec"; break;
+    case MPX9:        targetKW = "mpx9"; lwlinkFormat = "srec"; break;
     case VECTREX:     targetKW = "vec";  lwlinkFormat = "raw";  break;
     case DRAGON:      targetKW = "dgn";  lwlinkFormat = "decb"; break;
     case VOID_TARGET: targetKW = "void"; lwlinkFormat = "srec"; break;
@@ -838,6 +840,12 @@ interpretCommandLineOptions(Parameters &params, int argc, char *argv[], int &arg
         {
             ++numPlatformsSpecified;
             params.targetPlatform = USIM;
+            continue;
+        }
+        if (curopt == "--mpx9")
+        {
+            ++numPlatformsSpecified;
+            params.targetPlatform = MPX9;
             continue;
         }
         if (curopt == "--thommo")

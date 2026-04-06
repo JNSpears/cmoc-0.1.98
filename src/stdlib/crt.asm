@@ -35,6 +35,10 @@ program_end		IMPORT
 ;
 INILIB
 
+        IFDEF MPX9
+        tfr     X,Y                     ; X POINTS TO COMMAND LINE, SAVE IN Y FOR MPX9CL
+        ENDC
+
 	IFNDEF OS9
 ; Zero out BSS segment (for OS-9, done by OS9PREP).
 ; Must be done first, because code that follows initializes INISTK, etc.
@@ -48,7 +52,7 @@ s_bss   IMPORT
         LEAX    -1,X
         BNE     @loop
 @done
-        ENDC
+        ENDC    ; OS9
 
         IFDEF OS9
 	LEAX	6,S			X = initial stack pointer (OS-9 has argc and argv in stack)
@@ -93,6 +97,10 @@ s_bss   IMPORT
 	IFDEF FLEX
 	BSR	FLEXCL		prepare flex command line re: argc, argv
 	ENDC
+
+        IFDEF MPX9
+        BSR     MPX9CL          prepare mpx9 command line re: argc, argv
+        ENDC
 
 ; Install dummy routine in hook that converts a float to decimal.
 ; See enable_printf_float.asm.
@@ -183,6 +191,77 @@ donef
         RTS
 
 	ENDC		; FLEX
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        IFDEF MPX9
+
+maxargcf        EQU     8               ; maximum number of arguments to be passed to main()
+
+MPX9CL
+        LEAS    -((maxargcf+3)*2),S     ; maxargc+NULL pointer = *argv[] + 1xargc on stack
+        LDX     ((maxargcf+3)*2+2),S
+        PSHS    X                       ; restore return address
+        LDX     ((maxargcf+3)*2+2),S
+        PSHS    X                       ; restore return address
+
+; --> SP
+;       Return Address from FLEXCL
+; +2    Return Address from INILIB
+; +4    argc
+; +6    pointer to argv[] 
+; +8    pointer to argv[0]
+; +10   pointer to argv[1]
+; ...
+; +n    NULL
+
+                                        ; Y -> LineBuffer for MPX9 
+        LEAU    8,s
+        STU     6,S
+        STY     ,U++                    ; argv[0] = program name
+        INCB                            ; argc = 1
+
+findArgEndf
+        LDA     ,Y+
+        BSR     isArgEndingCharf
+        BEQ     foundArgEndf
+        CMPA    #$0D
+        BNE     findArgEndf
+foundArgEndf
+        CLR     -1,Y                    ; replace space/tab w/ NUL to turn arg into C string
+        CMPB    #maxargcf               ; reached max?
+        BHS     eolf                    ; if yes
+        CMPA    #$0D
+        BEQ     eolf
+
+findArgStartf
+        LDA     ,Y+
+        BSR     isArgEndingCharf
+        BEQ     findArgStartf
+        CMPA    #$0D
+        BEQ     eolf
+; Found an argument starting at X-1.
+        LEAY    -1,Y
+        STY     ,U++
+        LEAY    1,Y
+        INCB                            ; count the argument
+        BRA     findArgEndf
+
+eolf
+        CLRA
+        STD     4,S                     ; save argc
+        CLR     ,U+                     ; NULL pointer for end of argv
+        CLR     ,U+
+        RTS
+
+isArgEndingCharf
+        CMPA    #' '
+        BEQ     donef
+        CMPA    #$09
+donef
+        RTS
+
+        ENDC            ; MPX9
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -383,7 +462,7 @@ freemem:
         subd    __mtop,y
         rts
 
-        ENDC
+        ENDC            ; OS9
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -422,11 +501,20 @@ EXIT10	CLR	,X+
 
 	ENDC
 
-	IFDEF USIM
+        IFDEF USIM
 
-	SYNC			to leave usim
+        SYNC                    to leave usim
 
-	ENDC
+        ENDC
+
+        IFDEF MPX9
+
+        ldb     3,s             get LSB of exit() argument
+        ; swi3                    to return to MPX9, does not report error status.b
+        ; fcb     8
+        lds     INISTK,pcr      retrieve stack pointer saved at beginning
+        tstb                    set cc for status in B
+        ENDC
 
 	IFDEF VECTREX
 
@@ -526,17 +614,30 @@ argv     RMB     maxargc*2+2     ; one more entry for terminating NUL
 
         IFNDEF _COCO_OR_DRAGON_BASIC_
         IFNDEF FLEX
+        IFNDEF MPX9
 PUTCHR  EXPORT
         ENDC
         ENDC
+        ENDC
 
 
-	IFDEF USIM
+        IFDEF USIM
 
 * Code to be used with the version of usim that CMOC is shipped with.
 *
-PUTCHR	STA	$FF00
-	RTS
+PUTCHR  STA     $FF00
+        RTS
+
+        ENDC
+
+
+        IFDEF MPX9
+
+* Code to be used with MPX9.
+*
+PUTCHR  swi3
+        fcb 2
+        RTS
 
         ENDC
 
