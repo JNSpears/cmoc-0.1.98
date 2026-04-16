@@ -49,7 +49,7 @@ DELETE
 	FCB $02
 	CLR ,-X
 	BRA LOOP
-	ENDC
+	ENDC ; THOMMO
 
 	IFDEF THOMTO
 	LEAX	LINBUF+1,pcr
@@ -86,7 +86,7 @@ DELETE
 	JSR $E803
 	CLR ,-X
 	BRA LOOP
-	ENDC
+	ENDC ; THOMTO
 
 
         IFDEF FLEX
@@ -123,7 +123,7 @@ INBUFF  EQU     $CD1B
 	LDD	#LINBUF+1	return address of 1st char
 	RTS
 
-	ENDC
+	ENDC ; _COCO_OR_DRAGON_BASIC_
 
 
         IFDEF USIM
@@ -149,7 +149,7 @@ RDLN90	CLR	,X		terminate the string with a NUL character
 
 CRASH	SYNC
 
-        ENDC
+        ENDC ; USIM
 
 
         IFDEF OS9
@@ -186,7 +186,7 @@ readline_empty
 	tfr	x,d		return start of string
 	rts
 
-        ENDC
+        ENDC ; OS9
 
         IFDEF VECTREX
 
@@ -195,7 +195,7 @@ readline_empty
 	CLRB
 	RTS
 
-        ENDC
+        ENDC ; VECTREX
 
         IFDEF _CMOC_VOID_TARGET_
 
@@ -204,7 +204,40 @@ readline_empty
 	CLRB
 	RTS
 
-        ENDC
+        ENDC ; _CMOC_VOID_TARGET_
 
+
+        IFDEF MPX9
+
+**************************************************
+* SYSTEM CALL 9 (GETLIN) - GET INPUT LINE        *
+*                                                *
+* ENTRY REQUIREMENTS:  X POINTS AT LINE BUFFER   *
+*                      B CONTAINS BUFFER LENGTH  *
+*                                                *
+* EXIT CONDITIONS:  A CONTAINS FIRST CHARACTER,  *
+*                     NUL => LINE CANCELED       *
+*                     Z FLAG IN CC SET PER A     *
+*                   OTHERS UNCHANGED             *
+**************************************************
+        ldx     #LINBUF
+        ldb     #128
+	swi3
+	fcb 	9 ; getlin
+
+@readline_scan
+        lda     ,X+
+        cmpa    #$0D
+        beq     @readline_end
+        decb
+        bne     @readline_scan
+        clra                should never happen as the end of the linebuffer should always be $0D
+        rts
+@readline_end
+        clr     -1,X        put $00 as lineend instead of $0D
+        ldd     #LINBUF
+        rts
+
+        ENDC	; MPX9
 
 	ENDSECTION
