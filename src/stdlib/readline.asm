@@ -224,7 +224,7 @@ readline_empty
         ldb     #128
 	swi3
 	fcb 	9 ; getlin
-
+	beq 	@readline_return_empty
 @readline_scan
         lda     ,X+
         cmpa    #$0D
@@ -235,8 +235,12 @@ readline_empty
         rts
 @readline_end
         clr     -1,X        put $00 as lineend instead of $0D
+@readline_return
         ldd     #LINBUF
         rts
+@readline_return_empty
+	clr 	LINBUF
+	bra 	@readline_return
 
         ENDC	; MPX9
 
